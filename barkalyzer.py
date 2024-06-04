@@ -7,6 +7,7 @@ import librosa
 import logging
 import matplotlib.pyplot as plt
 import moviepy.editor as mp
+import glob
 
 from scipy.io import wavfile
 from scipy.signal import find_peaks
@@ -73,19 +74,25 @@ def analyze_audio(audio_path):
 def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Extract audio from video file and analyze it.")
-    parser.add_argument("video_path", type=str, help="Path to the input video file")
+    parser.add_argument("video_paths", nargs='+', type=str, help="Paths to the input video files")
     parser.add_argument("-f", "--force", action="store_true", help="Force re-extraction of audio")
 
     # Parse the arguments
     args = parser.parse_args()
 
-    # Extract audio from the video
-    audio_path = extract_audio(args.video_path, args.force)
+    # Expand wildcard patterns
+    video_paths = []
+    for pattern in args.video_paths:
+        video_paths.extend(glob.glob(pattern))
 
-    # Analyze the audio
-    bark_count, plot_path = analyze_audio(audio_path)
-    print(f"[{plot_path}] plot saved")
-    print(f"Number of barks detected: {bark_count}\n")
+    for video_path in video_paths:
+        # Extract audio from each video
+        audio_path = extract_audio(video_path, args.force)
+
+        # Analyze the audio
+        bark_count, plot_path = analyze_audio(audio_path)
+        print(f"[{plot_path}] plot saved")
+        print(f"barks detected: {bark_count}\n")
 
 if __name__ == "__main__":
     main()
