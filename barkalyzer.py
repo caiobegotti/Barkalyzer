@@ -24,9 +24,9 @@ def extract_audio(video_path, force):
         # Extract audio
         audio = video.audio
         audio.write_audiofile(audio_path, logger=None)
-        print(f"Audio extracted to: {audio_path}")
+        print(f"[{audio_path}] audio extracted")
     else:
-        print(f"Using existing audio file: {audio_path}")
+        print(f"[{audio_path}] using existing audio file")
 
     return audio_path
 
@@ -54,9 +54,9 @@ def analyze_audio(audio_path):
 
     # Plot the energy and detected peaks for visualization
     plt.figure(figsize=(14, 6))
-    plt.plot(energy, label='Energy')
+    plt.plot(energy, label='Noise energy')
     plt.plot(peaks, energy[peaks], 'rx', label='Barks')
-    plt.title('Bark Detection in Audio')
+    plt.title('Barks in Audio')
     plt.xlabel('Frame')
     plt.ylabel('Normalized Energy')
     plt.legend()
@@ -84,8 +84,8 @@ def main():
 
     # Analyze the audio
     bark_count, plot_path = analyze_audio(audio_path)
-    print(f"Plot saved to: {plot_path}")
-    print(f"Number of barks detected: {bark_count}")
+    print(f"[{plot_path}] plot saved")
+    print(f"Number of barks detected: {bark_count}\n")
 
 if __name__ == "__main__":
     main()
