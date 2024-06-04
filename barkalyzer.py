@@ -11,8 +11,6 @@ import moviepy.editor as mp
 from scipy.io import wavfile
 from scipy.signal import find_peaks
 
-logging.getLogger("moviepy").setLevel(logging.ERROR)
-
 def extract_audio(video_path, force):
     # Extract the file name without extension
     base_name = os.path.splitext(os.path.basename(video_path))[0]
@@ -25,7 +23,7 @@ def extract_audio(video_path, force):
 
         # Extract audio
         audio = video.audio
-        audio.write_audiofile(audio_path, logger=none)
+        audio.write_audiofile(audio_path, logger=None)
         print(f"Audio extracted to: {audio_path}")
     else:
         print(f"Using existing audio file: {audio_path}")

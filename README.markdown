@@ -43,5 +43,5 @@ pip install -r requirements.txt
 ## Run
 
 ```
-./barkalyzer.py
+./barkalyzer.py barks.mp4
 ```
