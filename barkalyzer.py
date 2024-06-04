@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# author: @caiobegotti
+# license: MIT
 
 import argparse
 import os
