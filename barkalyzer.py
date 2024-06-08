@@ -52,6 +52,7 @@ def analyze_audio(audio_path):
 
     # detect peaks in energy that correspond to barks
     peaks, _ = find_peaks(energy, height=0.1, distance=int(0.3 * sample_rate / hop_length))
+    bark_count = len(peaks)
 
     # plot the energy and detected peaks for visualization
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
@@ -61,7 +62,7 @@ def analyze_audio(audio_path):
     plt.plot(times[peaks], energy[peaks], 'rx', label='Presumed barks')
     plt.xlabel('Time (mm:ss)')
     plt.ylabel('Normalized energy')
-    plt.legend()
+    plt.legend(title=f'Maybe {bark_count} barks\n')
 
     # format x-axis to show time in mm:ss
     plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{int(x//60):02d}:{int(x%60):02d}"))
@@ -70,7 +71,6 @@ def analyze_audio(audio_path):
     plt.savefig(plot_path)
     plt.close()
 
-    bark_count = len(peaks)
     return bark_count, plot_path
 
 def main():
