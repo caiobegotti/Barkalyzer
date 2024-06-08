@@ -56,19 +56,21 @@ def analyze_audio(audio_path):
 
     # plot the energy and detected peaks for visualization
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
+    plot_path = f"{base_name}.png"
 
     plt.figure(figsize=(14, 6))
     plt.plot(times, energy, label='Noise deviation')
     plt.plot(times[peaks], energy[peaks], 'rx', label='Presumed barks')
     plt.xlabel('Time (mm:ss)')
     plt.ylabel('Normalized energy')
-    plt.legend(title=f'Maybe {bark_count} barks\n')
+    plt.tight_layout()
 
     # format x-axis to show time in mm:ss
     plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{int(x//60):02d}:{int(x%60):02d}"))
 
-    plot_path = f"{base_name}.png"
-    plt.savefig(plot_path)
+    legend = plt.legend(title=f'Maybe {bark_count} barks\n')
+    legend.get_frame().set_edgecolor('none')
+    plt.savefig(plot_path, bbox_inches='tight')
     plt.close()
 
     return bark_count, plot_path
