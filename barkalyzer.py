@@ -77,7 +77,7 @@ def analyze_audio(audio_path):
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze my security cam streams to detect and plot when my dog barks.")
-    parser.add_argument("video_paths", nargs='+', type=str, help="Paths to one or more input video files")
+    parser.add_argument("video_paths", nargs='+', type=str, help="Paths to one or more input video files e.g. <video1> [<video2> ...]")
     parser.add_argument("-f", "--force", action="store_true", help="Force re-extraction of audio")
 
     args = parser.parse_args()
