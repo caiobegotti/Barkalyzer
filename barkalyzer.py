@@ -14,87 +14,79 @@ import glob
 from scipy.io import wavfile
 from scipy.signal import find_peaks
 
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
 def extract_audio(video_path, force):
-    # Extract the file name without extension
     base_name = os.path.splitext(os.path.basename(video_path))[0]
-    # Create the output audio file path
     audio_path = f"{base_name}.wav"
 
     if not os.path.exists(audio_path) or force:
-        # Load the video file
         video = mp.VideoFileClip(video_path)
 
-        # Extract audio
+        # leave it on the disk to re-use it in the future
         audio = video.audio
         audio.write_audiofile(audio_path, logger=None)
-        print(f"[{audio_path}] audio extracted")
+        logging.info(f"Audio extracted: {audio_path}")
     else:
-        print(f"[{audio_path}] using existing audio file")
+        logging.info(f"Using existing audio file: {audio_path}")
 
     return audio_path
 
 def analyze_audio(audio_path):
-    # Load the audio file
     sample_rate, audio_data = wavfile.read(audio_path)
 
-    # Convert to mono if stereo
+    # convert to mono if stereo
     if len(audio_data.shape) > 1:
         audio_data = np.mean(audio_data, axis=1)
 
-    # Calculate the short-term energy
+    # calculate the short-term energy
     frame_length = 2048
     hop_length = 512
-    energy = np.array([sum(abs(audio_data[i:i+frame_length]**2)) for i in range(0, len(audio_data), hop_length)])
+    energy = np.array([
+        np.sum(np.abs(audio_data[i:i + frame_length] ** 2))
+        for i in range(0, len(audio_data), hop_length)
+    ])
 
-    # Normalize energy
+    # normalize energy
     energy = energy / np.max(energy)
 
-    # Detect peaks in energy that correspond to barks
+    # detect peaks in energy that correspond to barks
     peaks, _ = find_peaks(energy, height=0.1, distance=int(0.3 * sample_rate / hop_length))
 
-    # Extract the file name without extension
+    # plot the energy and detected peaks for visualization
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
+    plot_path = f"{base_name}.png"
 
-    # Plot the energy and detected peaks for visualization
     plt.figure(figsize=(14, 6))
     plt.plot(energy, label='Noise energy')
-    plt.plot(peaks, energy[peaks], 'rx', label='Barks')
-    plt.title('Barks in Audio')
+    plt.plot(peaks, energy[peaks], 'rx', label='Presumed barks')
     plt.xlabel('Frame')
-    plt.ylabel('Normalized Energy')
+    plt.ylabel('Normalized energy')
     plt.legend()
-    
-    # Save the plot as a PNG file
-    plot_path = f"{base_name}.png"
     plt.savefig(plot_path)
     plt.close()
 
-    # Count the number of distinct barks
     bark_count = len(peaks)
     return bark_count, plot_path
 
 def main():
-    # Set up argument parser
-    parser = argparse.ArgumentParser(description="Extract audio from video file and analyze it.")
-    parser.add_argument("video_paths", nargs='+', type=str, help="Paths to the input video files")
+    parser = argparse.ArgumentParser(description="Analyze my security cam streams to detect and plot when my dog barks.")
+    parser.add_argument("video_paths", nargs='+', type=str, help="Paths to one or more input video files")
     parser.add_argument("-f", "--force", action="store_true", help="Force re-extraction of audio")
 
-    # Parse the arguments
     args = parser.parse_args()
-
-    # Expand wildcard patterns
     video_paths = []
     for pattern in args.video_paths:
         video_paths.extend(glob.glob(pattern))
 
     for video_path in video_paths:
-        # Extract audio from each video
-        audio_path = extract_audio(video_path, args.force)
-
-        # Analyze the audio
-        bark_count, plot_path = analyze_audio(audio_path)
-        print(f"[{plot_path}] plot saved")
-        print(f"barks detected: {bark_count}\n")
+        try:
+            audio_path = extract_audio(video_path, args.force)
+            bark_count, plot_path = analyze_audio(audio_path)
+            logging.info(f"Plot saved: {plot_path}")
+            logging.info(f"Barks detected: {bark_count}\n")
+        except:
+            logging.error(f"Error processing {video_path}: {e}")
 
 if __name__ == "__main__":
     main()
