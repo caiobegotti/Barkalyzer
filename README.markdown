@@ -1,6 +1,6 @@
 # Barkalyzer
 
-![image](./sample_plot.png)
+![image](./sample-plot.png)
 
 ## Setup
 
