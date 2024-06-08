@@ -1,5 +1,7 @@
 # Barkalyzer
 
+![image](./sample_plot.png)
+
 ## Setup
 
 ### macOS
