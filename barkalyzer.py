@@ -50,7 +50,7 @@ def analyze_audio(audio_path):
     energy = energy / np.max(energy)
 
     # Detect peaks in energy that correspond to barks
-    peaks, _ = find_peaks(energy, height=0.3, distance=int(0.5 * sample_rate / hop_length))
+    peaks, _ = find_peaks(energy, height=0.1, distance=int(0.3 * sample_rate / hop_length))
 
     # Extract the file name without extension
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
