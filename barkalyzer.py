@@ -5,7 +5,6 @@
 import argparse
 import os
 import numpy as np
-import librosa
 import logging
 import matplotlib.pyplot as plt
 import moviepy.editor as mp
@@ -26,9 +25,9 @@ def extract_audio(video_path, force):
         # leave it on the disk to re-use it in the future
         audio = video.audio
         audio.write_audiofile(audio_path, logger=None)
-        logging.info(f"Audio extracted: {audio_path}")
+        logging.info(f"Extracted: {audio_path}")
     else:
-        logging.info(f"Using existing audio file: {audio_path}")
+        logging.info(f"Re-using: {audio_path}")
 
     return audio_path
 
@@ -47,22 +46,27 @@ def analyze_audio(audio_path):
         for i in range(0, len(audio_data), hop_length)
     ])
 
-    # normalize energy
+    # normalize energy and arrange it over time
     energy = energy / np.max(energy)
+    times = np.arange(len(energy)) * (hop_length / sample_rate)
 
     # detect peaks in energy that correspond to barks
     peaks, _ = find_peaks(energy, height=0.1, distance=int(0.3 * sample_rate / hop_length))
 
     # plot the energy and detected peaks for visualization
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
-    plot_path = f"{base_name}.png"
 
     plt.figure(figsize=(14, 6))
-    plt.plot(energy, label='Noise energy')
-    plt.plot(peaks, energy[peaks], 'rx', label='Presumed barks')
-    plt.xlabel('Frame')
+    plt.plot(times, energy, label='Noise deviation')
+    plt.plot(times[peaks], energy[peaks], 'rx', label='Presumed barks')
+    plt.xlabel('Time (mm:ss)')
     plt.ylabel('Normalized energy')
     plt.legend()
+
+    # format x-axis to show time in mm:ss
+    plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{int(x//60):02d}:{int(x%60):02d}"))
+
+    plot_path = f"{base_name}.png"
     plt.savefig(plot_path)
     plt.close()
 
@@ -83,9 +87,9 @@ def main():
         try:
             audio_path = extract_audio(video_path, args.force)
             bark_count, plot_path = analyze_audio(audio_path)
-            logging.info(f"Plot saved: {plot_path}")
-            logging.info(f"Barks detected: {bark_count}\n")
-        except:
+            logging.info(f"Plot: {plot_path}")
+            logging.info(f"Barks? Maybe {bark_count}\n")
+        except Exception as e:
             logging.error(f"Error processing {video_path}: {e}")
 
 if __name__ == "__main__":
