@@ -48,12 +48,16 @@ pip install -r requirements.txt
 ./barkalyzer.py barks.mp4
 ```
 
-## Debugging
+## Streaming RTSP
 
-Security cameras (e.g. Intelbras like mine) can be probed with `ffprobe` from your `ffmpeg` installation and streamed to a file. Password is set by you and IP is from your local network. Username and streaming path are hardcoded.
+Security cameras (e.g. Intelbras, like mine) can be probed with `ffprobe` from your `ffmpeg` installation and streamed to a file. Password is set by you and IP is from your local network. Username and streaming path are hardcoded.
 
 ```
 ffmpeg -i "rtsp://admin:password@192.168.x.y:554/cam/realmonitor?channel=1&subtype=0 -vcodec copy output.mp4"
 ```
 
 You can then process `output.mp4` with Barkalyzer.
+
+### Other cameras
+
+See https://gist.github.com/alexishida/b804c0329e1a71d64336e1f0bcbd20da for addresses and streaming paths for cameras like Luxvision, Hikvision, Tecvoz, YooSee and others.
